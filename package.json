@@ -1,0 +1,15 @@
+{
+  "name": "To-Do-list",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/akijania/To-Do-list.git",
+  "author": "Anna Kijania <kijania.anna@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^2.0.6"
+  }
+}
