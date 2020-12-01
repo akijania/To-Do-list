@@ -1,5 +1,7 @@
 import React from 'react';
 import io from 'socket.io-client';
+import { v4 as uuidv4 } from 'uuid';
+
 
 class App extends React.Component {
   state = {
@@ -9,20 +11,20 @@ class App extends React.Component {
 
   componentDidMount() {
     this.socket = io.connect('http://localhost:8000');
-    this.socket.on('removeTask', (index) => this.removeTask(index));
-    this.socket.on('addTask', (taskName) => this.addTask(taskName));
+    this.socket.on('removeTask', (taskId) => this.removeTask(taskId));
+    this.socket.on('addTask', ({ taskId, taskName }) => this.addTask(taskId, taskName));
     this.socket.on('updateTask', (tasks) => this.updateTask(tasks));
   }
-  removeTask = (index) => {
+  removeTask = (taskId) => {
     const { tasks } = this.state;
-    const tasksList = tasks.filter((task) => tasks.indexOf(task) == !index);
+    const tasksList = tasks.filter(task => task.id !== taskId );
     this.setState({
       tasks: tasksList,
     });
   };
-  handleRemoveTask(index) {
-    this.removeTask(index);
-    this.socket.emit('removeTask', index);
+  handleRemoveTask(taskId) {
+    this.removeTask(taskId);
+    this.socket.emit('removeTask', taskId);
   }
 
   handleChange(event) {
@@ -30,18 +32,19 @@ class App extends React.Component {
       taskName: event.target.value,
     });
   }
-  addTask(task) {
+  addTask(taskId, taskName) {
     const { tasks } = this.state;
     this.setState({
-      tasks: [...tasks, task],
+      tasks: [...tasks, { id: taskId, name: taskName }],
       taskName: '',
     });
   }
   submitForm(event) {
     const { taskName } = this.state;
+    const taskId = uuidv4();
     event.preventDefault();
-    this.addTask(taskName);
-    this.socket.emit('addTask', taskName);
+    this.addTask(taskId, taskName);
+    this.socket.emit('addTask', { id: taskId, name: taskName });
   }
   updateTask(updatedTasks) {
     this.setState({
@@ -64,11 +67,11 @@ class App extends React.Component {
             {tasks === undefined || tasks.length < 1
               ? ''
               : tasks.map((task) => (
-                  <li kay={tasks.indexOf(task)} className='task'>
-                    {task}
+                  <li key={task.id} className='task'>
+                    {task.name}
                     <button
                       className='btn btn--red'
-                      onClick={() => this.handleRemoveTask(tasks.indexOf(task))}
+                      onClick={() => this.handleRemoveTask(task.id)}
                     >
                       Remove
                     </button>
