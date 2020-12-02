@@ -12,7 +12,6 @@ class App extends React.Component {
   componentDidMount() {
     this.socket = io.connect('http://localhost:8000');
     this.socket.on('removeTask', (taskId) => this.removeTask(taskId));
-    this.socket.on('addTask', ({ taskId, taskName }) => this.addTask(taskId, taskName));
     this.socket.on('updateTask', (tasks) => this.updateTask(tasks));
   }
   removeTask = (taskId) => {
